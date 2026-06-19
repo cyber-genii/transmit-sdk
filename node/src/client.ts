@@ -1,4 +1,5 @@
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
+import { unwrapData } from './response';
 import { ClientOptions } from './types/index';
 
 export class TransmitClient {
@@ -43,22 +44,22 @@ export class TransmitClient {
   }
 
   async get<T>(path: string, params?: Record<string, any>): Promise<T> {
-    const response = await this.httpClient.get<T>(path, { params });
-    return response.data;
+    const response = await this.httpClient.get(path, { params });
+    return unwrapData<T>(response.data);
   }
 
   async post<T>(path: string, data?: any): Promise<T> {
-    const response = await this.httpClient.post<T>(path, data);
-    return response.data;
+    const response = await this.httpClient.post(path, data);
+    return unwrapData<T>(response.data);
   }
 
   async put<T>(path: string, data?: any): Promise<T> {
-    const response = await this.httpClient.put<T>(path, data);
-    return response.data;
+    const response = await this.httpClient.put(path, data);
+    return unwrapData<T>(response.data);
   }
 
   async delete<T>(path: string): Promise<T> {
-    const response = await this.httpClient.delete<T>(path);
-    return response.data;
+    const response = await this.httpClient.delete(path);
+    return unwrapData<T>(response.data);
   }
 }

@@ -2,6 +2,8 @@ from typing import Any, Dict, Optional
 
 import requests
 
+from .response import unwrap_data
+
 
 class TransmitAPIError(Exception):
     """Exception raised for errors in the Transmit API."""
@@ -69,7 +71,7 @@ class TransmitClient:
                     error_message, status_code=response.status_code, response=response
                 )
 
-            return response.json()
+            return unwrap_data(response.json())
         except requests.exceptions.RequestException as e:
             raise TransmitAPIError(f"Network error: {str(e)}")
 

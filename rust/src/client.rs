@@ -1,3 +1,4 @@
+use crate::response::{decode_data, unwrap_value};
 use reqwest::{Client as ReqwestClient, Response, header};
 use serde::{de::DeserializeOwned, Serialize};
 use serde_json::Value;
@@ -91,8 +92,8 @@ impl Client {
             });
         }
         
-        let data = response.json::<T>().await?;
-        Ok(data)
+        let raw: Value = response.json().await?;
+        decode_data(unwrap_value(raw)).map_err(TransmitError::from)
     }
 
     pub(crate) async fn get<T: DeserializeOwned>(&self, path: &str) -> Result<T, TransmitError> {

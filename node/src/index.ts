@@ -28,3 +28,4 @@ export class Transmit {
 
 // Export types
 export * from './types';
+export { verifyWebhookSignature, signWebhookPayload } from './webhook';

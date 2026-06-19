@@ -1,5 +1,11 @@
 import { TransmitClient } from '../client';
-import { ApiDeliveryRequest, ApiDeliveryResponse, FareQuoteRequest } from '../types';
+import { unwrapList } from '../response';
+import {
+  ApiDeliveryListItem,
+  ApiDeliveryRequest,
+  ApiDeliveryResponse,
+  FareQuoteRequest,
+} from '../types';
 
 export class Deliveries {
   private client: TransmitClient;
@@ -18,8 +24,10 @@ export class Deliveries {
   /**
    * List your API deliveries
    */
-  async list(params?: Record<string, any>): Promise<ApiDeliveryResponse[]> {
-    return this.client.get<ApiDeliveryResponse[]>('/api/v1/api-deliveries', params);
+  async list(params?: Record<string, any>): Promise<ApiDeliveryListItem[]> {
+    return unwrapList<ApiDeliveryListItem>(
+      await this.client.get<unknown>('/api/v1/api-deliveries', params),
+    );
   }
 
   /**

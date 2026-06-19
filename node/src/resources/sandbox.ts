@@ -1,4 +1,5 @@
 import { TransmitClient } from '../client';
+import { CreateSandboxDataRequest } from '../types';
 
 export class Sandbox {
   private client: TransmitClient;
@@ -7,7 +8,7 @@ export class Sandbox {
     this.client = client;
   }
 
-  async createData(data: { type: string; parameters?: any }): Promise<any> {
+  async createData(data: CreateSandboxDataRequest): Promise<any> {
     return this.client.post<any>('/api/v1/developers/sandbox', data);
   }
 

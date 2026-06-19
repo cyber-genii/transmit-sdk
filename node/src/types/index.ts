@@ -21,30 +21,53 @@ export interface ApiDeliveryRequest {
   package_height_cm?: number;
   package_description: string;
   delivery_type: string;
-  vehicle_type: string;
+  vehicle_type?: string;
   payment_method: string;
 }
 
 export interface FareQuoteRequest {
-  pickup_address: string;
-  dropoff_address: string;
-  vehicle_type: string;
-  package_weight: number;
+  pickup_latitude: number;
+  pickup_longitude: number;
+  dropoff_latitude: number;
+  dropoff_longitude: number;
+  package_weight_kg: number;
+  package_length_cm?: number;
+  package_width_cm?: number;
+  package_height_cm?: number;
+  delivery_type?: string;
 }
 
 export interface CreateWebhookRequest {
   url: string;
   events: string[];
   secret?: string;
-  description?: string;
 }
 
-// Responses
+export interface CreateApiKeyRequest {
+  name: string;
+  environment: 'production' | 'sandbox';
+  scopes?: string[];
+}
+
+export interface CreateSandboxDataRequest {
+  entity_type: string;
+  entity_id: string;
+  data: Record<string, unknown>;
+}
+
 export interface ApiDeliveryResponse {
-  id: string;
-  tracking_number: string;
+  delivery_id: string;
+  order_id: string;
+  delivery_number: string;
   status: string;
-  fare_amount: number;
+  estimated_fare: string;
   created_at: string;
-  [key: string]: any;
+}
+
+export interface ApiDeliveryListItem {
+  order_id: string;
+  order_number: string;
+  status: string;
+  total_amount: string;
+  created_at: string;
 }

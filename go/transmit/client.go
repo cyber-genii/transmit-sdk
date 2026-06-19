@@ -95,5 +95,5 @@ func (c *Client) sendRequest(method, path string, body interface{}) ([]byte, err
 		return nil, fmt.Errorf("transmit api error: %d - %s", resp.StatusCode, string(respBody))
 	}
 
-	return respBody, nil
+	return unwrapData(respBody), nil
 }

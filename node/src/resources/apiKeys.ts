@@ -1,4 +1,6 @@
 import { TransmitClient } from '../client';
+import { unwrapList, unwrapPaginated } from '../response';
+import { CreateApiKeyRequest } from '../types';
 
 export class ApiKeys {
   private client: TransmitClient;
@@ -8,10 +10,11 @@ export class ApiKeys {
   }
 
   async list(): Promise<any[]> {
-    return this.client.get<any[]>('/api/v1/developers/api-keys');
+    const raw = await this.client.get<unknown>('/api/v1/developers/api-keys');
+    return unwrapPaginated(raw).items;
   }
 
-  async create(data: { name: string; expires_in_days?: number; permissions?: string[] }): Promise<any> {
+  async create(data: CreateApiKeyRequest): Promise<any> {
     return this.client.post<any>('/api/v1/developers/api-keys', data);
   }
 

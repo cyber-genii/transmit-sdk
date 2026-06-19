@@ -18,4 +18,11 @@ class Transmit:
         self.vehicles = Vehicles(self._client)
 
 
-__all__ = ["Transmit", "TransmitAPIError"]
+from .webhook import sign_webhook_payload, verify_webhook_signature
+
+__all__ = [
+    "Transmit",
+    "TransmitAPIError",
+    "verify_webhook_signature",
+    "sign_webhook_payload",
+]
