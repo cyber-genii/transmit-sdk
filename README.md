@@ -1,6 +1,6 @@
-# Transmit SDKs
+# Respatch SDKs
 
-Official client libraries for the [Transmit](https://transmit.network) logistics API.
+Official client libraries for the [Respatch](https://respatch.com) logistics API.
 
 ## Languages
 

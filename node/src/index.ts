@@ -26,6 +26,9 @@ export class Transmit {
   }
 }
 
+/** Preferred public export — `Transmit` kept for backward compatibility. */
+export { Transmit as Respatch };
+
 // Export types
 export * from './types';
 export { verifyWebhookSignature, signWebhookPayload } from './webhook';

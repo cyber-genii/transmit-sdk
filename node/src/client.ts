@@ -7,7 +7,7 @@ export class TransmitClient {
 
   constructor(options: ClientOptions) {
     if (!options.apiKey) {
-      throw new Error("API Key is required to initialize the Transmit SDK");
+      throw new Error("API Key is required to initialize the Respatch SDK");
     }
 
     let defaultBaseUrl = 'https://api.transmit.com';
@@ -22,7 +22,7 @@ export class TransmitClient {
       headers: {
         'Authorization': `Bearer ${options.apiKey}`,
         'Content-Type': 'application/json',
-        'User-Agent': 'Transmit-Node-SDK/1.0.0',
+        'User-Agent': 'Respatch-Node-SDK/1.0.0',
       },
       timeout: 30000,
     });
@@ -38,7 +38,7 @@ export class TransmitClient {
         } else if (error.message) {
           errorMessage = error.message;
         }
-        throw new Error(`Transmit API Error [${error.response?.status || 'Unknown Status'}]: ${errorMessage}`);
+        throw new Error(`Respatch API Error [${error.response?.status || 'Unknown Status'}]: ${errorMessage}`);
       }
     );
   }
