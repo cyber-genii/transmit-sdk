@@ -1,11 +1,7 @@
-export interface DeliveryLocationInput {
+export interface QuoteLocationInput {
   address?: string;
   lat?: number;
   lng?: number;
-  contact_name: string;
-  contact_email?: string;
-  contact_phone: string;
-  contact_phone_secondary?: string;
 }
 
 export interface PackageDimensions {
@@ -14,45 +10,96 @@ export interface PackageDimensions {
   height: number;
 }
 
+export interface QuotePackageInput {
+  weight_kg: number;
+  dimensions_cm: PackageDimensions;
+  quantity?: number;
+}
+
+export interface GetQuoteRequest {
+  pickup: QuoteLocationInput;
+  dropoff: QuoteLocationInput;
+  delivery_type: string;
+  vehicle_type?: string;
+  packages: QuotePackageInput[];
+  scheduled_pickup_time?: string;
+}
+
+export interface QuoteLocationResponse {
+  address: string;
+  address_source: 'provided' | 'resolved';
+  lat: number;
+  lng: number;
+}
+
+export interface QuoteFareBreakdown {
+  base_fee: number;
+  distance_fee: number;
+  weight_surcharge: number;
+}
+
+export interface QuoteFareAmount {
+  currency: string;
+  amount: number;
+  breakdown: QuoteFareBreakdown;
+}
+
+export interface VehicleQuoteOption {
+  vehicle_type: string;
+  fare: QuoteFareAmount;
+}
+
+export interface GetQuoteResponse {
+  quote_id: string;
+  expires_at: string;
+  pickup: QuoteLocationResponse;
+  dropoff: QuoteLocationResponse;
+  distance_km: number;
+  estimated_duration_minutes: number;
+  recommended_vehicle_type: string;
+  options: VehicleQuoteOption[];
+  warnings: OrderWarning[];
+}
+
+export interface OrderContactLocation {
+  contact_name: string;
+  contact_email?: string;
+  contact_phone: string;
+  contact_phone_secondary?: string;
+}
+
 export interface SupplierInfo {
   name?: string;
   reference?: string;
 }
 
-export interface PackageInput {
+export interface OrderPackageMetaInput {
   package_id?: string;
   description: string;
-  quantity?: number;
-  weight_kg: number;
-  dimensions_cm?: PackageDimensions;
   value?: number;
   fragile?: boolean;
   supplier_info?: SupplierInfo;
 }
 
 export interface CreateDeliveryOrderRequest {
-  pickup: DeliveryLocationInput;
-  dropoff: DeliveryLocationInput;
-  vehicle_type: string;
-  delivery_type: string;
-  packages?: PackageInput[];
-  package_weight_kg?: number;
-  package_length_cm?: number;
-  package_width_cm?: number;
-  package_height_cm?: number;
-  package_description?: string;
-  package_value?: number;
-  is_fragile?: boolean;
+  quote_id: string;
+  pickup: OrderContactLocation;
+  dropoff: OrderContactLocation;
+  packages: OrderPackageMetaInput[];
   payment_method?: string;
   webhook_url?: string;
   external_reference?: string;
 }
 
-export interface DeliveryLocationResponse extends DeliveryLocationInput {
+export interface DeliveryLocationResponse {
   address: string;
   lat: number;
   lng: number;
   address_source: 'provided' | 'resolved';
+  contact_name: string;
+  contact_email?: string;
+  contact_phone: string;
+  contact_phone_secondary?: string;
 }
 
 export interface OrderWarning {
@@ -95,17 +142,11 @@ export interface CreateDeliveryOrderResponse {
   external_reference?: string;
 }
 
-export interface CalculateOrderFareRequest {
-  pickup: DeliveryLocationInput;
-  dropoff: DeliveryLocationInput;
-  delivery_type: string;
-  vehicle_type?: string;
-  packages?: PackageInput[];
-  package_weight_kg?: number;
-  package_length_cm?: number;
-  package_width_cm?: number;
-  package_height_cm?: number;
-}
+/** @deprecated Use GetQuoteRequest */
+export type CalculateOrderFareRequest = GetQuoteRequest;
+
+/** @deprecated Use GetQuoteResponse */
+export type CalculateOrderFareResponse = GetQuoteResponse;
 
 export interface PackageTrackStatus {
   package_id: string;
@@ -119,4 +160,14 @@ export interface DeliveryOrderTrackResponse {
   packages: PackageTrackStatus[];
   tracking_url: string;
   warnings: OrderWarning[];
+}
+
+export interface BookFromQuoteParams {
+  quoteId: string;
+  pickup: OrderContactLocation;
+  dropoff: OrderContactLocation;
+  packages: OrderPackageMetaInput[];
+  payment_method?: string;
+  webhook_url?: string;
+  external_reference?: string;
 }

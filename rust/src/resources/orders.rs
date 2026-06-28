@@ -1,5 +1,5 @@
 use crate::client::{Client, TransmitError};
-use crate::types::{CalculateOrderFareRequest, CreateDeliveryOrderRequest};
+use crate::types::{CreateDeliveryOrderRequest, GetQuoteRequest};
 use serde_json::Value;
 
 pub struct Orders<'a> {
@@ -11,12 +11,27 @@ impl<'a> Orders<'a> {
         Self { client }
     }
 
-    pub async fn calculate_fare(&self, req: &CalculateOrderFareRequest) -> Result<Value, TransmitError> {
-        self.client.post("/api/v1/delivery-orders/calculate-fare", req).await
+    pub async fn quote(&self, req: &GetQuoteRequest) -> Result<Value, TransmitError> {
+        self.client.post("/api/v1/delivery-orders/quote", req).await
+    }
+
+    /// Deprecated — use `quote`.
+    pub async fn calculate_fare(&self, req: &GetQuoteRequest) -> Result<Value, TransmitError> {
+        self.client
+            .post("/api/v1/delivery-orders/calculate-fare", req)
+            .await
     }
 
     pub async fn create(&self, req: &CreateDeliveryOrderRequest) -> Result<Value, TransmitError> {
         self.client.post("/api/v1/delivery-orders", req).await
+    }
+
+    /// Create an order from a prior quote (single HTTP call).
+    pub async fn book_from_quote(
+        &self,
+        req: &CreateDeliveryOrderRequest,
+    ) -> Result<Value, TransmitError> {
+        self.create(req).await
     }
 
     pub async fn list(&self) -> Result<Vec<Value>, TransmitError> {

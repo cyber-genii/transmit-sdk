@@ -1,19 +1,13 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct DeliveryLocationInput {
+pub struct QuoteLocationInput {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub address: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub lat: Option<f64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub lng: Option<f64>,
-    pub contact_name: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub contact_email: Option<String>,
-    pub contact_phone: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub contact_phone_secondary: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -21,6 +15,36 @@ pub struct PackageDimensions {
     pub length: f64,
     pub width: f64,
     pub height: f64,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct QuotePackageInput {
+    pub weight_kg: f64,
+    pub dimensions_cm: PackageDimensions,
+    #[serde(default = "default_quantity")]
+    pub quantity: u32,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct GetQuoteRequest {
+    pub pickup: QuoteLocationInput,
+    pub dropoff: QuoteLocationInput,
+    pub delivery_type: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub vehicle_type: Option<String>,
+    pub packages: Vec<QuotePackageInput>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub scheduled_pickup_time: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct OrderContactLocation {
+    pub contact_name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub contact_email: Option<String>,
+    pub contact_phone: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub contact_phone_secondary: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -32,15 +56,10 @@ pub struct SupplierInfo {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct PackageInput {
+pub struct OrderPackageMetaInput {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub package_id: Option<String>,
     pub description: String,
-    #[serde(default = "default_quantity")]
-    pub quantity: u32,
-    pub weight_kg: f64,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub dimensions_cm: Option<PackageDimensions>,
     #[serde(default)]
     pub value: f64,
     #[serde(default)]
@@ -49,32 +68,12 @@ pub struct PackageInput {
     pub supplier_info: Option<SupplierInfo>,
 }
 
-fn default_quantity() -> u32 {
-    1
-}
-
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct CreateDeliveryOrderRequest {
-    pub pickup: DeliveryLocationInput,
-    pub dropoff: DeliveryLocationInput,
-    pub vehicle_type: String,
-    pub delivery_type: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub packages: Option<Vec<PackageInput>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub package_weight_kg: Option<f64>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub package_length_cm: Option<f64>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub package_width_cm: Option<f64>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub package_height_cm: Option<f64>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub package_description: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub package_value: Option<f64>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub is_fragile: Option<bool>,
+    pub quote_id: String,
+    pub pickup: OrderContactLocation,
+    pub dropoff: OrderContactLocation,
+    pub packages: Vec<OrderPackageMetaInput>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub payment_method: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -83,29 +82,16 @@ pub struct CreateDeliveryOrderRequest {
     pub external_reference: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct CalculateOrderFareRequest {
-    pub pickup: DeliveryLocationInput,
-    pub dropoff: DeliveryLocationInput,
-    pub delivery_type: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub vehicle_type: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub packages: Option<Vec<PackageInput>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub package_weight_kg: Option<f64>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub package_length_cm: Option<f64>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub package_width_cm: Option<f64>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub package_height_cm: Option<f64>,
+fn default_quantity() -> u32 {
+    1
 }
 
 /// Deprecated alias
+pub type CalculateOrderFareRequest = GetQuoteRequest;
+/// Deprecated alias
 pub type ApiDeliveryRequest = CreateDeliveryOrderRequest;
 /// Deprecated alias
-pub type FareQuoteRequest = CalculateOrderFareRequest;
+pub type FareQuoteRequest = GetQuoteRequest;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CreateWebhookRequest {

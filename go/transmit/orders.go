@@ -9,7 +9,18 @@ type OrdersService struct {
 	client *Client
 }
 
-func (s *OrdersService) CalculateFare(req *CalculateOrderFareRequest) (map[string]interface{}, error) {
+func (s *OrdersService) Quote(req *GetQuoteRequest) (map[string]interface{}, error) {
+	resp, err := s.client.sendRequest("POST", "/api/v1/delivery-orders/quote", req)
+	if err != nil {
+		return nil, err
+	}
+	var result map[string]interface{}
+	err = json.Unmarshal(resp, &result)
+	return result, err
+}
+
+// CalculateFare is deprecated — use Quote.
+func (s *OrdersService) CalculateFare(req *GetQuoteRequest) (map[string]interface{}, error) {
 	resp, err := s.client.sendRequest("POST", "/api/v1/delivery-orders/calculate-fare", req)
 	if err != nil {
 		return nil, err
@@ -27,6 +38,11 @@ func (s *OrdersService) Create(req *CreateDeliveryOrderRequest) (map[string]inte
 	var result map[string]interface{}
 	err = json.Unmarshal(resp, &result)
 	return result, err
+}
+
+// BookFromQuote creates an order from a prior quote (single HTTP call).
+func (s *OrdersService) BookFromQuote(req *CreateDeliveryOrderRequest) (map[string]interface{}, error) {
+	return s.Create(req)
 }
 
 func (s *OrdersService) List() ([]map[string]interface{}, error) {

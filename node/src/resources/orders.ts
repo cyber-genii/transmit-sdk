@@ -1,10 +1,12 @@
 import { TransmitClient } from '../client';
 import { unwrapList } from '../response';
 import {
-  CalculateOrderFareRequest,
+  BookFromQuoteParams,
   CreateDeliveryOrderRequest,
   CreateDeliveryOrderResponse,
   DeliveryOrderTrackResponse,
+  GetQuoteRequest,
+  GetQuoteResponse,
 } from '../types/deliveryOrders';
 
 export class Orders {
@@ -14,12 +16,33 @@ export class Orders {
     this.client = client;
   }
 
-  async calculateFare(data: CalculateOrderFareRequest) {
-    return this.client.post('/api/v1/delivery-orders/calculate-fare', data);
+  /** Get a persisted fare quote (required before creating an order). */
+  async quote(data: GetQuoteRequest): Promise<GetQuoteResponse> {
+    return this.client.post<GetQuoteResponse>('/api/v1/delivery-orders/quote', data);
+  }
+
+  /** @deprecated Use `quote()` — hits deprecated `/calculate-fare` alias. */
+  async calculateFare(data: GetQuoteRequest): Promise<GetQuoteResponse> {
+    return this.client.post<GetQuoteResponse>('/api/v1/delivery-orders/calculate-fare', data);
   }
 
   async create(data: CreateDeliveryOrderRequest): Promise<CreateDeliveryOrderResponse> {
     return this.client.post<CreateDeliveryOrderResponse>('/api/v1/delivery-orders', data);
+  }
+
+  /**
+   * Create an order from a prior quote (single HTTP call to Create Order).
+   * Obtain `quoteId` first via `quote()`.
+   */
+  async bookFromQuote(params: BookFromQuoteParams): Promise<CreateDeliveryOrderResponse> {
+    const { quoteId, pickup, dropoff, packages, ...rest } = params;
+    return this.create({
+      quote_id: quoteId,
+      pickup,
+      dropoff,
+      packages,
+      ...rest,
+    });
   }
 
   async list(params?: Record<string, unknown>): Promise<CreateDeliveryOrderResponse[]> {

@@ -1,14 +1,10 @@
 from typing import Any, Dict, List, Optional, TypedDict
 
 
-class DeliveryLocationInput(TypedDict, total=False):
+class QuoteLocationInput(TypedDict, total=False):
     address: str
     lat: float
     lng: float
-    contact_name: str
-    contact_email: str
-    contact_phone: str
-    contact_phone_secondary: str
 
 
 class PackageDimensions(TypedDict):
@@ -17,56 +13,82 @@ class PackageDimensions(TypedDict):
     height: float
 
 
-class PackageInput(TypedDict, total=False):
-    package_id: str
-    description: str
-    quantity: int
+class QuotePackageInput(TypedDict, total=False):
     weight_kg: float
     dimensions_cm: PackageDimensions
+    quantity: int
+
+
+class GetQuoteRequest(TypedDict, total=False):
+    pickup: QuoteLocationInput
+    dropoff: QuoteLocationInput
+    delivery_type: str
+    vehicle_type: str
+    packages: List[QuotePackageInput]
+    scheduled_pickup_time: str
+
+
+class OrderContactLocation(TypedDict, total=False):
+    contact_name: str
+    contact_email: str
+    contact_phone: str
+    contact_phone_secondary: str
+
+
+class OrderPackageMetaInput(TypedDict, total=False):
+    package_id: str
+    description: str
     value: float
     fragile: bool
     supplier_info: Dict[str, str]
 
 
 class CreateDeliveryOrderRequest(TypedDict, total=False):
-    pickup: DeliveryLocationInput
-    dropoff: DeliveryLocationInput
-    vehicle_type: str
-    delivery_type: str
-    packages: List[PackageInput]
-    package_weight_kg: float
-    package_length_cm: float
-    package_width_cm: float
-    package_height_cm: float
-    package_description: str
-    package_value: float
-    is_fragile: bool
+    quote_id: str
+    pickup: OrderContactLocation
+    dropoff: OrderContactLocation
+    packages: List[OrderPackageMetaInput]
     payment_method: str
     webhook_url: str
     external_reference: str
 
 
-class CalculateOrderFareRequest(TypedDict, total=False):
-    pickup: DeliveryLocationInput
-    dropoff: DeliveryLocationInput
-    delivery_type: str
-    vehicle_type: str
-    packages: List[PackageInput]
-    package_weight_kg: float
-    package_length_cm: float
-    package_width_cm: float
-    package_height_cm: float
+# Deprecated aliases
+CalculateOrderFareRequest = GetQuoteRequest
 
 
 class Orders:
     def __init__(self, client):
         self._client = client
 
-    def calculate_fare(self, data: CalculateOrderFareRequest) -> Dict[str, Any]:
+    def quote(self, data: GetQuoteRequest) -> Dict[str, Any]:
+        return self._client.post("/api/v1/delivery-orders/quote", json=data)
+
+    def calculate_fare(self, data: GetQuoteRequest) -> Dict[str, Any]:
+        """Deprecated — use quote()."""
         return self._client.post("/api/v1/delivery-orders/calculate-fare", json=data)
 
     def create(self, data: CreateDeliveryOrderRequest) -> Dict[str, Any]:
         return self._client.post("/api/v1/delivery-orders", json=data)
+
+    def book_from_quote(
+        self,
+        quote_id: str,
+        pickup: OrderContactLocation,
+        dropoff: OrderContactLocation,
+        packages: List[OrderPackageMetaInput],
+        **kwargs: Any,
+    ) -> Dict[str, Any]:
+        """Create an order from a prior quote (single HTTP call)."""
+        return self.create(
+            {
+                "quote_id": quote_id,
+                "pickup": pickup,
+                "dropoff": dropoff,
+                "packages": packages,
+                **kwargs,
+            }
+        )
 
     def list(self, params: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
         return self._client.get("/api/v1/delivery-orders", params=params)
