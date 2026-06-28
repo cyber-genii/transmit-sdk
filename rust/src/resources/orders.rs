@@ -2,13 +2,17 @@ use crate::client::{Client, TransmitError};
 use crate::types::{CalculateOrderFareRequest, CreateDeliveryOrderRequest};
 use serde_json::Value;
 
-pub struct Deliveries<'a> {
+pub struct Orders<'a> {
     client: &'a Client,
 }
 
-impl<'a> Deliveries<'a> {
+impl<'a> Orders<'a> {
     pub fn new(client: &'a Client) -> Self {
         Self { client }
+    }
+
+    pub async fn calculate_fare(&self, req: &CalculateOrderFareRequest) -> Result<Value, TransmitError> {
+        self.client.post("/api/v1/delivery-orders/calculate-fare", req).await
     }
 
     pub async fn create(&self, req: &CreateDeliveryOrderRequest) -> Result<Value, TransmitError> {
@@ -24,7 +28,13 @@ impl<'a> Deliveries<'a> {
         self.client.get(&path).await
     }
 
-    pub async fn quote(&self, req: &CalculateOrderFareRequest) -> Result<Value, TransmitError> {
-        self.client.post("/api/v1/delivery-orders/calculate-fare", req).await
+    pub async fn track(&self, id: &str) -> Result<Value, TransmitError> {
+        let path = format!("/api/v1/delivery-orders/{}/track", id);
+        self.client.get(&path).await
+    }
+
+    pub async fn cancel(&self, id: &str) -> Result<Value, TransmitError> {
+        let path = format!("/api/v1/delivery-orders/{}/cancel", id);
+        self.client.post(&path, &serde_json::json!({})).await
     }
 }

@@ -3,7 +3,7 @@ use sha2::Sha256;
 
 type HmacSha256 = Hmac<Sha256>;
 
-/// Verify `X-Transmit-Signature` (HMAC-SHA256 hex of raw body).
+/// Verify `X-Respatch-Signature` (or legacy `X-Transmit-Signature`).
 pub fn verify_webhook_signature(payload: &[u8], signature_header: &str, secret: &str) -> bool {
     if signature_header.is_empty() || secret.is_empty() {
         return false;

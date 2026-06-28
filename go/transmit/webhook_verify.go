@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-// VerifyWebhookSignature checks X-Transmit-Signature (HMAC-SHA256 hex of raw body).
+// VerifyWebhookSignature checks X-Respatch-Signature (or legacy X-Transmit-Signature).
 func VerifyWebhookSignature(payload []byte, signatureHeader, secret string) bool {
 	if signatureHeader == "" || secret == "" {
 		return false

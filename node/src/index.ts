@@ -1,12 +1,15 @@
 import { TransmitClient } from './client';
 import { ApiKeys } from './resources/apiKeys';
 import { Deliveries } from './resources/deliveries';
+import { Orders } from './resources/orders';
 import { Sandbox } from './resources/sandbox';
 import { Vehicles } from './resources/vehicles';
 import { Webhooks } from './resources/webhooks';
 import { ClientOptions } from './types';
 
-export class Transmit {
+export class Respatch {
+  public orders: Orders;
+  /** @deprecated Use `orders` — kept for backward compatibility. */
   public deliveries: Deliveries;
   public apiKeys: ApiKeys;
   public webhooks: Webhooks;
@@ -16,8 +19,7 @@ export class Transmit {
 
   constructor(options: ClientOptions) {
     this.client = new TransmitClient(options);
-    
-    // Initialize API resources
+    this.orders = new Orders(this.client);
     this.deliveries = new Deliveries(this.client);
     this.apiKeys = new ApiKeys(this.client);
     this.webhooks = new Webhooks(this.client);
@@ -26,9 +28,14 @@ export class Transmit {
   }
 }
 
-/** Preferred public export — `Transmit` kept for backward compatibility. */
-export { Transmit as Respatch };
+/** @deprecated Use `Respatch` */
+export { Respatch as Transmit };
 
-// Export types
-export * from './types';
-export { verifyWebhookSignature, signWebhookPayload } from './webhook';
+export * from './types/deliveryOrders';
+export {
+  verifyWebhookSignature,
+  signWebhookPayload,
+  getWebhookSignatureHeader,
+  RESPATCH_SIGNATURE_HEADER,
+} from './webhook';
+export { RESPATCH_PRODUCTION_URL, RESPATCH_SANDBOX_URL } from './client';

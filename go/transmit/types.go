@@ -1,32 +1,72 @@
 package transmit
 
-type APIDeliveryRequest struct {
-	SenderName         string  `json:"sender_name"`
-	SenderPhone        string  `json:"sender_phone"`
-	ReceiverName       string  `json:"receiver_name"`
-	ReceiverPhone      string  `json:"receiver_phone"`
-	PickupLatitude     float64 `json:"pickup_latitude"`
-	PickupLongitude    float64 `json:"pickup_longitude"`
-	PickupAddress      string  `json:"pickup_address"`
-	DropoffLatitude    float64 `json:"dropoff_latitude"`
-	DropoffLongitude   float64 `json:"dropoff_longitude"`
-	DropoffAddress     string  `json:"dropoff_address"`
-	PackageWeightKg    float64 `json:"package_weight_kg"`
-	PackageLengthCm    float64 `json:"package_length_cm,omitempty"`
-	PackageWidthCm     float64 `json:"package_width_cm,omitempty"`
-	PackageHeightCm    float64 `json:"package_height_cm,omitempty"`
-	PackageDescription string  `json:"package_description"`
-	DeliveryType       string  `json:"delivery_type"`
-	VehicleType        string  `json:"vehicle_type"`
-	PaymentMethod      string  `json:"payment_method"`
+type DeliveryLocationInput struct {
+	Address               *string  `json:"address,omitempty"`
+	Lat                   *float64 `json:"lat,omitempty"`
+	Lng                   *float64 `json:"lng,omitempty"`
+	ContactName           string   `json:"contact_name"`
+	ContactEmail          *string  `json:"contact_email,omitempty"`
+	ContactPhone          string   `json:"contact_phone"`
+	ContactPhoneSecondary *string  `json:"contact_phone_secondary,omitempty"`
 }
 
-type FareQuoteRequest struct {
-	PickupAddress  string  `json:"pickup_address"`
-	DropoffAddress string  `json:"dropoff_address"`
-	VehicleType    string  `json:"vehicle_type"`
-	PackageWeight  float64 `json:"package_weight"`
+type PackageDimensions struct {
+	Length float64 `json:"length"`
+	Width  float64 `json:"width"`
+	Height float64 `json:"height"`
 }
+
+type SupplierInfo struct {
+	Name      *string `json:"name,omitempty"`
+	Reference *string `json:"reference,omitempty"`
+}
+
+type PackageInput struct {
+	PackageID     *string            `json:"package_id,omitempty"`
+	Description   string             `json:"description"`
+	Quantity      int                `json:"quantity,omitempty"`
+	WeightKg      float64            `json:"weight_kg"`
+	DimensionsCm  *PackageDimensions `json:"dimensions_cm,omitempty"`
+	Value         float64            `json:"value,omitempty"`
+	Fragile       bool               `json:"fragile,omitempty"`
+	SupplierInfo  *SupplierInfo      `json:"supplier_info,omitempty"`
+}
+
+type CreateDeliveryOrderRequest struct {
+	Pickup              DeliveryLocationInput `json:"pickup"`
+	Dropoff             DeliveryLocationInput `json:"dropoff"`
+	VehicleType         string                `json:"vehicle_type"`
+	DeliveryType        string                `json:"delivery_type"`
+	Packages            []PackageInput        `json:"packages,omitempty"`
+	PackageWeightKg     *float64              `json:"package_weight_kg,omitempty"`
+	PackageLengthCm     *float64              `json:"package_length_cm,omitempty"`
+	PackageWidthCm      *float64              `json:"package_width_cm,omitempty"`
+	PackageHeightCm     *float64              `json:"package_height_cm,omitempty"`
+	PackageDescription  *string               `json:"package_description,omitempty"`
+	PackageValue        *float64              `json:"package_value,omitempty"`
+	IsFragile           *bool                 `json:"is_fragile,omitempty"`
+	PaymentMethod       *string               `json:"payment_method,omitempty"`
+	WebhookURL          *string               `json:"webhook_url,omitempty"`
+	ExternalReference   *string               `json:"external_reference,omitempty"`
+}
+
+type CalculateOrderFareRequest struct {
+	Pickup          DeliveryLocationInput `json:"pickup"`
+	Dropoff         DeliveryLocationInput `json:"dropoff"`
+	DeliveryType    string                `json:"delivery_type"`
+	VehicleType     *string               `json:"vehicle_type,omitempty"`
+	Packages        []PackageInput        `json:"packages,omitempty"`
+	PackageWeightKg *float64              `json:"package_weight_kg,omitempty"`
+	PackageLengthCm *float64              `json:"package_length_cm,omitempty"`
+	PackageWidthCm  *float64              `json:"package_width_cm,omitempty"`
+	PackageHeightCm *float64              `json:"package_height_cm,omitempty"`
+}
+
+// Deprecated: use CreateDeliveryOrderRequest
+type APIDeliveryRequest = CreateDeliveryOrderRequest
+
+// Deprecated: use CalculateOrderFareRequest
+type FareQuoteRequest = CalculateOrderFareRequest
 
 type CreateWebhookRequest struct {
 	URL         string   `json:"url"`

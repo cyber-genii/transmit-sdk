@@ -50,7 +50,7 @@ impl Client {
                 .map_err(|_| TransmitError::Api { status: 0, message: "Invalid API key format".into() })?,
         );
         headers.insert(header::CONTENT_TYPE, header::HeaderValue::from_static("application/json"));
-        headers.insert(header::USER_AGENT, header::HeaderValue::from_static("Transmit-Rust-SDK/0.1.0"));
+        headers.insert(header::USER_AGENT, header::HeaderValue::from_static("Respatch-Rust-SDK/1.0.0"));
 
         let http_client = ReqwestClient::builder()
             .default_headers(headers)
@@ -59,9 +59,9 @@ impl Client {
         let base_url = if let Some(custom_url) = base_url_override {
             custom_url.to_string()
         } else if environment == Some("sandbox") {
-            "https://sandbox-api.transmit.com".to_string()
+            "https://sandbox-api.respatch.com".to_string()
         } else {
-            "https://api.transmit.com".to_string()
+            "https://api.respatch.com".to_string()
         };
 
         Ok(Self {

@@ -1,7 +1,12 @@
 import { createHmac, timingSafeEqual } from 'crypto';
 
+export const RESPATCH_SIGNATURE_HEADER = 'X-Respatch-Signature';
+
+/** @deprecated Use RESPATCH_SIGNATURE_HEADER */
+export const TRANSMIT_SIGNATURE_HEADER = RESPATCH_SIGNATURE_HEADER;
+
 /**
- * Verify an inbound Transmit webhook using `X-Transmit-Signature`.
+ * Verify an inbound Respatch webhook using `X-Respatch-Signature` (or legacy `X-Transmit-Signature`).
  * Signature is HMAC-SHA256 of the raw request body, hex-encoded.
  */
 export function verifyWebhookSignature(
@@ -24,9 +29,17 @@ export function verifyWebhookSignature(
   }
 }
 
-/**
- * Sign an outbound webhook payload (for tests or replay tools).
- */
+/** Resolve signature header from incoming request headers (Respatch preferred). */
+export function getWebhookSignatureHeader(
+  headers: Record<string, string | string[] | undefined>,
+): string {
+  const respatch = headers[RESPATCH_SIGNATURE_HEADER.toLowerCase()];
+  if (typeof respatch === 'string') return respatch;
+  const legacy = headers['x-transmit-signature'];
+  if (typeof legacy === 'string') return legacy;
+  return '';
+}
+
 export function signWebhookPayload(payload: string | Buffer, secret: string): string {
   const body = typeof payload === 'string' ? payload : payload.toString('utf8');
   return createHmac('sha256', secret).update(body, 'utf8').digest('hex');

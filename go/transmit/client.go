@@ -13,7 +13,8 @@ type Client struct {
 	BaseURL    string
 	APIKey     string
 	HTTPClient *http.Client
-	
+
+	Orders     *OrdersService
 	Deliveries *DeliveriesService
 	APIKeys    *APIKeysService
 	Webhooks   *WebhooksService
@@ -30,15 +31,15 @@ type Options struct {
 // NewClient creates a new Transmit API Client
 func NewClient(options Options) (*Client, error) {
 	if options.APIKey == "" {
-		return nil, fmt.Errorf("API Key is required to initialize the Transmit SDK")
+		return nil, fmt.Errorf("API Key is required to initialize the Respatch SDK")
 	}
 
 	baseURL := options.BaseURL
 	if baseURL == "" {
 		if options.Environment == "sandbox" {
-			baseURL = "https://sandbox-api.transmit.com"
+			baseURL = "https://sandbox-api.respatch.com"
 		} else {
-			baseURL = "https://api.transmit.com"
+			baseURL = "https://api.respatch.com"
 		}
 	}
 
@@ -49,7 +50,8 @@ func NewClient(options Options) (*Client, error) {
 			Timeout: time.Second * 30,
 		},
 	}
-	
+
+	c.Orders = &OrdersService{client: c}
 	c.Deliveries = &DeliveriesService{client: c}
 	c.APIKeys = &APIKeysService{client: c}
 	c.Webhooks = &WebhooksService{client: c}
@@ -78,7 +80,7 @@ func (c *Client) sendRequest(method, path string, body interface{}) ([]byte, err
 
 	req.Header.Set("Authorization", "Bearer "+c.APIKey)
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("User-Agent", "Transmit-Go-SDK/1.0.0")
+	req.Header.Set("User-Agent", "Respatch-Go-SDK/1.0.0")
 
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
